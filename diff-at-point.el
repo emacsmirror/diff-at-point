@@ -38,8 +38,7 @@
 ;; Needed for calling 'diff-goto-source'.
 (require 'diff-mode)
 
-(defvar diff-at-point-diff-command
-  (lambda () (interactive) (vc-root-diff nil))
+(defvar diff-at-point-diff-command (lambda () (interactive) (vc-root-diff nil))
   "This is the function called to create a diff in the current repository.
 
 On success it must open a diff buffer and return a non-nil value.
