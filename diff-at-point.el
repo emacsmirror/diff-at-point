@@ -115,7 +115,7 @@ otherwise return a point in the closest hunk."
                     ;; So use any non-blank line start except for '-' & '+'.
                     "\\(?:[^\\-\\+[:blank:]]+.*\n\\)+?"
                     ;; Prefix.
-                    "\\-\\-\\-[[:blank:]]+.*\n" ;; '--- '
+                    "---[[:blank:]]+.*\n" ;; '--- '
                     "\\+\\+\\+[[:blank:]]+.*\n" ;; '+++ '
                     ;; May have trailing text which can be safely ignored.
                     "@@[[:blank:]]+.*[[:blank:]]@@")
@@ -132,9 +132,9 @@ otherwise return a point in the closest hunk."
                 (concat
                   "^\\(@@\\)[[:blank:]]+"
                   ;; Previous (ignore).
-                  "\\-" "\\([[:digit:]]+\\)\\,\\([[:digit:]]+\\)" "[[:blank:]]+"
+                  "-" "\\([[:digit:]]+\\),\\([[:digit:]]+\\)" "[[:blank:]]+"
                   ;; Current (use).
-                  "\\+" "\\([[:digit:]]+\\)\\,\\([[:digit:]]+\\)" "[[:blank:]]+@@")
+                  "\\+" "\\([[:digit:]]+\\),\\([[:digit:]]+\\)" "[[:blank:]]+@@")
                 current-filename-diff-point-max t 1))
             (let*
               (
