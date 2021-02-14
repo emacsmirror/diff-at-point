@@ -1,22 +1,24 @@
-
+###################
 Emacs Diff at Point
-===================
+###################
 
 This is a utility for navigating between changes in your repository,
 by opening a diff, and by navigating to the lines inside it.
+
+Available via `melpa <https://melpa.org/#/diff-at-point>`__.
 
 See `demo video <https://youtu.be/bR4czpEqah8>`__.
 
 
 Motivation
-----------
+==========
 
 When working on a task that touches multiple files,
 it's often useful to navigate between these changes.
 
 
 Features
---------
+========
 
 ``diff-at-point-open-and-goto-hunk``
    Creates a diff for the current repository,
@@ -27,7 +29,7 @@ Features
 
 
 Usage
------
+=====
 
 You may bind the functions to keys, in specific modes.
 
@@ -61,7 +63,7 @@ Or you can use a global binding which checks the major mode.
 
 
 Customization
--------------
+=============
 
 ``diff-at-point-diff-command``
    This is the function used to create the diff buffer.
