@@ -63,7 +63,7 @@ Or you can use a global binding which checks the major mode.
 
 
 Customization
-=============
+-------------
 
 ``diff-at-point-diff-command``
    This is the function used to create the diff buffer.
