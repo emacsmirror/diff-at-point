@@ -260,8 +260,7 @@ otherwise the offset from the window is kept."
                     (scroll-reset
                       (recenter))
                     (t
-                      (set-window-start
-                        init-window
+                      (set-window-start init-window
                         (save-excursion
                           (forward-line (- lines-from-top))
                           (point))
@@ -301,8 +300,7 @@ otherwise the offset from the window is kept."
       (scroll-reset
         (recenter))
       (t
-        (set-window-start
-          init-window
+        (set-window-start init-window
           (save-excursion
             (forward-line (- lines-from-top))
             (point))
