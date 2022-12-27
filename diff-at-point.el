@@ -38,7 +38,7 @@ Override this function for a different diff function `vc-root-diff'.")
 
 
 (defun diff-at-point-file-line-to-point
-  (current-filename-relative current-line current-column &optional strict)
+    (current-filename-relative current-line current-column &optional strict)
   "This can be used to navigate to a point in a diff buffer.
 
 Given the file, line and column in the original (non-diff) file,
@@ -59,85 +59,79 @@ Typically this is taken from the current `point'.
 When STRICT is enabled, only return a result if the line exists in the diff,
 otherwise return a point in the closest hunk."
   (save-excursion
-    (unless
-      (re-search-forward
-        (concat
-          ;; Filename declaration.
-          "^"
-          "\\-\\-\\-[[:blank:]]+.*\n" ;; '--- '
-          "\\+\\+\\+[[:blank:]]+" ;;     '+++ '.
-          ;; Optional 'b/'.
-          "\\(\\|b/\\)" (regexp-quote current-filename-relative)
-          ;; Optional ' (some text)'
-          ;; Subversion quirk.
-          "\\(\\|[[:blank:]]+.*\\)\n" ;; Ignore this line.
-          "@@[[:blank:]]+.*[[:blank:]]@@"
-          ;; may have trailing text, ignore this.
-          )
-        nil t 1)
+    (unless (re-search-forward (concat
+                                ;; Filename declaration.
+                                "^"
+                                "\\-\\-\\-[[:blank:]]+.*\n" ;; '--- '
+                                "\\+\\+\\+[[:blank:]]+" ;;     '+++ '.
+                                ;; Optional 'b/'.
+                                "\\(\\|b/\\)" (regexp-quote current-filename-relative)
+                                ;; Optional ' (some text)'
+                                ;; Subversion quirk.
+                                "\\(\\|[[:blank:]]+.*\\)\n" ;; Ignore this line.
+                                "@@[[:blank:]]+.*[[:blank:]]@@"
+                                ;; may have trailing text, ignore this.
+                                )
+                               nil t 1)
       (user-error "Unable to find filename in diff: %S" current-filename-relative))
 
     (beginning-of-line)
-    (let
-      (
-        ;; Next file or end of document.
-        (point-found nil)
-        ;; Fallback point closest to the hunk,
-        ;; used if 'current-line' isn't inside the hunk in the diff.
-        ;;
-        ;; The fallback uses either the beginning or end of the hunk.
-        (fallback-point-begin nil)
-        (fallback-point-end nil)
-        (fallback-point-is-begin nil)
-        ;; The distance of the fallback point to the line we're looking for.
-        (fallback-delta-lines nil)
-        ;; Find the next hunk or file max, to restrict the search.
-        (current-filename-diff-point-max
-          (save-excursion
-            (cond
-              (
-                (re-search-forward
-                  (concat
-                    "\\(^\\)"
-                    ;; Optional, don't capture, ignore.
-                    ;; Git uses: "diff ..." & "index ..."
-                    ;; Subversion uses: "Index ..." & "===...".
-                    ;;
-                    ;; So use any non-blank line start except for '-' & '+'.
-                    "\\(?:[^\\-\\+[:blank:]]+.*\n\\)+?"
-                    ;; Prefix.
-                    "---[[:blank:]]+.*\n" ;; '--- '
-                    "\\+\\+\\+[[:blank:]]+.*\n" ;; '+++ '
-                    ;; May have trailing text which can be safely ignored.
-                    "@@[[:blank:]]+.*[[:blank:]]@@")
-                  nil t 1)
-                (match-beginning 0))
+    (let (
+          ;; Next file or end of document.
+          (point-found nil)
+          ;; Fallback point closest to the hunk,
+          ;; used if 'current-line' isn't inside the hunk in the diff.
+          ;;
+          ;; The fallback uses either the beginning or end of the hunk.
+          (fallback-point-begin nil)
+          (fallback-point-end nil)
+          (fallback-point-is-begin nil)
+          ;; The distance of the fallback point to the line we're looking for.
+          (fallback-delta-lines nil)
+          ;; Find the next hunk or file max, to restrict the search.
+          (current-filename-diff-point-max
+           (save-excursion
+             (cond
+              ((re-search-forward (concat
+                                   "\\(^\\)"
+                                   ;; Optional, don't capture, ignore.
+                                   ;; Git uses: "diff ..." & "index ..."
+                                   ;; Subversion uses: "Index ..." & "===...".
+                                   ;;
+                                   ;; So use any non-blank line start except for '-' & '+'.
+                                   "\\(?:[^\\-\\+[:blank:]]+.*\n\\)+?"
+                                   ;; Prefix.
+                                   "---[[:blank:]]+.*\n" ;; '--- '
+                                   "\\+\\+\\+[[:blank:]]+.*\n" ;; '+++ '
+                                   ;; May have trailing text which can be safely ignored.
+                                   "@@[[:blank:]]+.*[[:blank:]]@@")
+                                  nil t 1)
+               (match-beginning 0))
               (t
-                (point-max))))))
+               (point-max))))))
 
       ;; Now search for the current hunk.
       (save-excursion
-        (while
-          (and
-            (null point-found)
-            (re-search-forward
-              (concat
-                "^\\(@@\\)[[:blank:]]+"
-                ;; Previous (ignore).
-                "-" "\\([[:digit:]]+\\),\\([[:digit:]]+\\)" "[[:blank:]]+"
-                ;; Current (use).
-                "\\+" "\\([[:digit:]]+\\),\\([[:digit:]]+\\)" "[[:blank:]]+@@")
-              current-filename-diff-point-max t 1))
-          (let*
-            (
-              (diff-hunk-point (match-beginning 1))
-              (diff-hunk-begin
-                (string-to-number
-                  (buffer-substring-no-properties (match-beginning 4) (match-end 4))))
-              (diff-hunk-lines
-                (string-to-number
-                  (buffer-substring-no-properties (match-beginning 5) (match-end 5))))
-              (diff-hunk-end (+ diff-hunk-begin diff-hunk-lines)))
+        (while (and (null point-found)
+                    (re-search-forward (concat
+                                        "^\\(@@\\)[[:blank:]]+"
+                                        ;; Previous (ignore).
+                                        "-"
+                                        "\\([[:digit:]]+\\),\\([[:digit:]]+\\)"
+                                        "[[:blank:]]+"
+                                        ;; Current (use).
+                                        "\\+"
+                                        "\\([[:digit:]]+\\),\\([[:digit:]]+\\)"
+                                        "[[:blank:]]+@@")
+                                       current-filename-diff-point-max t 1))
+          (let* ((diff-hunk-point (match-beginning 1))
+                 (diff-hunk-begin
+                  (string-to-number
+                   (buffer-substring-no-properties (match-beginning 4) (match-end 4))))
+                 (diff-hunk-lines
+                  (string-to-number
+                   (buffer-substring-no-properties (match-beginning 5) (match-end 5))))
+                 (diff-hunk-end (+ diff-hunk-begin diff-hunk-lines)))
             ;; We have something like this:
             ;; @@ -1,4 +1,5 @@
             ;; string-to-number
@@ -150,57 +144,56 @@ otherwise return a point in the closest hunk."
 
             ;; Scan down the the line...
             (cond
-              ((< current-line diff-hunk-begin)
-                (let ((delta (- diff-hunk-begin current-line)))
-                  (when (or (null fallback-delta-lines) (> fallback-delta-lines delta))
-                    (setq fallback-point-begin diff-hunk-point)
-                    (setq fallback-point-is-begin t)
-                    (setq fallback-delta-lines delta)
-                    ;; Set next iteration.
-                    (setq fallback-point-end nil))))
-              ((>= current-line diff-hunk-end)
-                (let ((delta (- current-line diff-hunk-end)))
-                  (when (or (null fallback-delta-lines) (> fallback-delta-lines delta))
-                    (setq fallback-point-begin diff-hunk-point)
-                    (setq fallback-point-is-begin nil)
-                    (setq fallback-delta-lines delta)
-                    ;; Set next iteration.
-                    (setq fallback-point-end nil))))
-              (t
-                (let ((diff-line-current diff-hunk-begin))
-                  (forward-line)
-                  ;; Avoid eternal loop (for mal-formed diffs).
-                  (while (null point-found)
-                    (let ((c (char-after (point))))
-                      (cond
-                        ((memq c '(?\s ?+))
-                          (when (eq diff-line-current current-line)
-                            (setq point-found (+ 1 (point) current-column)))
-                          (setq diff-line-current (+ 1 diff-line-current)))
-                        ((eq c ?-)
-                          nil)
-                        (t
-                          (user-error "Malformed diff, unexpected character %S" c))))
-                    (forward-line))))))))
+             ((< current-line diff-hunk-begin)
+              (let ((delta (- diff-hunk-begin current-line)))
+                (when (or (null fallback-delta-lines) (> fallback-delta-lines delta))
+                  (setq fallback-point-begin diff-hunk-point)
+                  (setq fallback-point-is-begin t)
+                  (setq fallback-delta-lines delta)
+                  ;; Set next iteration.
+                  (setq fallback-point-end nil))))
+             ((>= current-line diff-hunk-end)
+              (let ((delta (- current-line diff-hunk-end)))
+                (when (or (null fallback-delta-lines) (> fallback-delta-lines delta))
+                  (setq fallback-point-begin diff-hunk-point)
+                  (setq fallback-point-is-begin nil)
+                  (setq fallback-delta-lines delta)
+                  ;; Set next iteration.
+                  (setq fallback-point-end nil))))
+             (t
+              (let ((diff-line-current diff-hunk-begin))
+                (forward-line)
+                ;; Avoid eternal loop (for mal-formed diffs).
+                (while (null point-found)
+                  (let ((c (char-after (point))))
+                    (cond
+                     ((memq c '(?\s ?+))
+                      (when (eq diff-line-current current-line)
+                        (setq point-found (+ 1 (point) current-column)))
+                      (setq diff-line-current (+ 1 diff-line-current)))
+                     ((eq c ?-)
+                      nil)
+                     (t
+                      (user-error "Malformed diff, unexpected character %S" c))))
+                  (forward-line))))))))
 
       ;; May be nil, return either way.
       (cond
-        (strict
-          point-found)
-        (t
-          (or
-            point-found
+       (strict
+        point-found)
+       (t
+        (or point-found
             ;; Use the beginning or end of the hunk.
             (save-excursion
               (cond
-                (fallback-point-is-begin
-                  (goto-char fallback-point-begin)
-                  (forward-line 1)
-                  (forward-char))
-                (t
-                  (goto-char (or fallback-point-end current-filename-diff-point-max))
-                  (forward-line -1)
-                  (forward-char)))
+               (fallback-point-is-begin
+                (goto-char fallback-point-begin)
+                (forward-line 1)
+                (forward-char))
+               (t
+                (goto-char (or fallback-point-end current-filename-diff-point-max))
+                (forward-line -1)
+                (forward-char)))
               ;; fallback-point-end
               (point))))))))
 
@@ -216,58 +209,54 @@ otherwise the offset from the window is kept."
   (save-restriction
     (widen)
 
-    (let*
-      (
-        (current-filename (buffer-file-name))
-        (current-line (line-number-at-pos))
-        (current-column (- (point) (line-beginning-position)))
+    (let* ((current-filename (buffer-file-name))
+           (current-line (line-number-at-pos))
+           (current-column (- (point) (line-beginning-position)))
 
-        (init-buffer (current-buffer))
-        (init-window (selected-window))
-        (lines-from-top
-          (cond
-            (scroll-reset
+           (init-buffer (current-buffer))
+           (init-window (selected-window))
+           (lines-from-top
+            (cond
+             (scroll-reset
               nil)
-            (t
+             (t
               (count-lines
-                (window-start init-window)
-                (save-excursion
-                  (move-beginning-of-line nil)
-                  (point))))))
+               (window-start init-window)
+               (save-excursion
+                 (move-beginning-of-line nil)
+                 (point))))))
 
-        ;; Replace the current window.
-        (pop-up-windows nil))
+           ;; Replace the current window.
+           (pop-up-windows nil))
 
       (when (funcall diff-at-point-diff-command)
         (cond
-          ((eq init-buffer (current-buffer))
-            (message
-              (concat
-                "While 'diff-at-point-diff-command' succeeded, "
-                "no diff buffer was created by 'diff-at-point-diff-command'")))
-          (t
-            (when current-filename
-              (let*
-                (
-                  (current-filename-relative
+         ((eq init-buffer (current-buffer))
+          (message
+           (concat
+            "While 'diff-at-point-diff-command' succeeded, "
+            "no diff buffer was created by 'diff-at-point-diff-command'")))
+         (t
+          (when current-filename
+            (let* ((current-filename-relative
                     (file-relative-name current-filename default-directory))
-                  (point-found
+                   (point-found
                     (diff-at-point-file-line-to-point
-                      current-filename-relative
-                      current-line
-                      current-column)))
-                ;; Go to the file in the diff which we were previously viewing.
-                (when point-found
-                  (goto-char point-found)
-                  (cond
-                    (scroll-reset
-                      (recenter))
-                    (t
-                      (set-window-start init-window
-                        (save-excursion
-                          (forward-line (- lines-from-top))
-                          (point))
-                        t))))))))))))
+                     current-filename-relative
+                     current-line
+                     current-column)))
+              ;; Go to the file in the diff which we were previously viewing.
+              (when point-found
+                (goto-char point-found)
+                (cond
+                 (scroll-reset
+                  (recenter))
+                 (t
+                  (set-window-start init-window
+                                    (save-excursion
+                                      (forward-line (- lines-from-top))
+                                      (point))
+                                    t))))))))))))
 
 ;;;###autoload
 (defun diff-at-point-goto-source-and-close (&optional scroll-reset)
@@ -276,23 +265,21 @@ otherwise the offset from the window is kept."
 When SCROLL-RESET is not nil the view re-centers,
 otherwise the offset from the window is kept."
   (interactive)
-  (let*
-    (
-      (buf (current-buffer))
-      ;; Replace the current window.
-      (pop-up-windows nil)
+  (let* ((buf (current-buffer))
+         ;; Replace the current window.
+         (pop-up-windows nil)
 
-      (init-window (selected-window))
-      (lines-from-top
-        (cond
-          (scroll-reset
+         (init-window (selected-window))
+         (lines-from-top
+          (cond
+           (scroll-reset
             nil)
-          (t
+           (t
             (count-lines
-              (window-start init-window)
-              (save-excursion
-                (move-beginning-of-line nil)
-                (point)))))))
+             (window-start init-window)
+             (save-excursion
+               (move-beginning-of-line nil)
+               (point)))))))
 
     ;; From 'diff-mode'
     (diff-goto-source)
@@ -300,14 +287,14 @@ otherwise the offset from the window is kept."
     (kill-buffer buf)
     ;; Convenient to center the view.
     (cond
-      (scroll-reset
-        (recenter))
-      (t
-        (set-window-start init-window
-          (save-excursion
-            (forward-line (- lines-from-top))
-            (point))
-          t)))))
+     (scroll-reset
+      (recenter))
+     (t
+      (set-window-start init-window
+                        (save-excursion
+                          (forward-line (- lines-from-top))
+                          (point))
+                        t)))))
 
 (provide 'diff-at-point)
 
