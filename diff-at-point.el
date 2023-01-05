@@ -139,7 +139,7 @@ otherwise return a point in the closest hunk."
 
             ;; If the last hunk was set as the fallback, use this chink as the
             ;; end of that fallback.
-            (when (and (null fallback-point-end) (not (null fallback-point-begin)))
+            (when (and (null fallback-point-end) fallback-point-begin)
               (setq fallback-point-end diff-hunk-point))
 
             ;; Scan down the the line...
