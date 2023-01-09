@@ -295,5 +295,8 @@ otherwise the offset from the window is kept."
                         t)))))
 
 (provide 'diff-at-point)
-
+;; Local Variables:
+;; fill-column: 99
+;; indent-tabs-mode: nil
+;; End:
 ;;; diff-at-point.el ends here
