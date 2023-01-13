@@ -23,8 +23,27 @@
 
 ;;; Code:
 
+;; ---------------------------------------------------------------------------
+;; Require Dependencies
+
 ;; Needed for calling 'diff-goto-source'.
 (require 'diff-mode)
+
+
+;; ---------------------------------------------------------------------------
+;; Compatibility
+
+(when (version< emacs-version "29.1")
+  (defsubst pos-bol (&optional n)
+    "Return the position at the line beginning."
+    (line-beginning-position n))
+  (defsubst pos-eol (&optional n)
+    "Return the position at the line end."
+    (line-end-position n)))
+
+
+;; ---------------------------------------------------------------------------
+;; Custom Variables
 
 (defvar diff-at-point-diff-command
   (lambda ()
@@ -35,7 +54,6 @@
 On success it must open a diff buffer and return a non-nil value.
 
 Override this function for a different diff function `vc-root-diff'.")
-
 
 (defun diff-at-point-file-line-to-point
     (current-filename-relative current-line current-column &optional strict)
