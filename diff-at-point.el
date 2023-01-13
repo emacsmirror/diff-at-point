@@ -75,7 +75,7 @@ otherwise return a point in the closest hunk."
                                nil t 1)
       (user-error "Unable to find filename in diff: %S" current-filename-relative))
 
-    (beginning-of-line)
+    (goto-char (pos-bol))
     (let ((point-found nil) ; Next file or end of document.
           ;; Fallback point closest to the hunk,
           ;; used if 'current-line' isn't inside the hunk in the diff.
@@ -221,7 +221,7 @@ otherwise the offset from the window is kept."
               (count-lines
                (window-start init-window)
                (save-excursion
-                 (move-beginning-of-line nil)
+                 (goto-char (pos-bol))
                  (point))))))
 
            ;; Replace the current window.
@@ -276,7 +276,7 @@ otherwise the offset from the window is kept."
             (count-lines
              (window-start init-window)
              (save-excursion
-               (move-beginning-of-line nil)
+               (goto-char (pos-bol))
                (point)))))))
 
     ;; From 'diff-mode'
