@@ -209,7 +209,7 @@ otherwise the offset from the window is kept."
 
     (let* ((current-filename (buffer-file-name))
            (current-line (line-number-at-pos))
-           (current-column (- (point) (line-beginning-position)))
+           (current-column (- (point) (pos-bol)))
 
            (init-buffer (current-buffer))
            (init-window (selected-window))
