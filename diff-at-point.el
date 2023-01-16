@@ -262,9 +262,7 @@ otherwise the offset from the window is kept."
                     (file-relative-name current-filename default-directory))
                    (point-found
                     (diff-at-point-file-line-to-point
-                     current-filename-relative
-                     current-line
-                     current-column)))
+                     current-filename-relative current-line current-column)))
               ;; Go to the file in the diff which we were previously viewing.
               (when point-found
                 (goto-char point-found)
