@@ -114,20 +114,29 @@ otherwise return a point in the closest hunk."
              (save-excursion
                (cond
                 ((re-search-forward (concat
-                                     "\\(^\\)"
-                                     ;; Optional, don't capture, ignore.
-                                     ;; Git uses: "diff ..." & "index ..."
-                                     ;; Subversion uses: "Index ..." & "===...".
-                                     ;;
-                                     ;; So use any non-blank line start except for '-' & '+'.
-                                     "\\(?:[^\\-\\+[:blank:]]+.*\n\\)+?"
+                                     "^"
                                      ;; Prefix.
-                                     "---[[:blank:]]+.*\n" ; '--- '
-                                     "\\+\\+\\+[[:blank:]]+.*\n" ; '+++ '
-                                     ;; May have trailing text which can be safely ignored.
-                                     "@@[[:blank:]]+.*[[:blank:]]@@")
+                                     "\\-\\-\\-[[:blank:]]+.*\n" ; '--- '
+                                     "\\+\\+\\+[[:blank:]]+.*\n") ; '+++ '
                                     nil t 1)
-                 (match-beginning 0))
+                 ;; Skip non-diff header.
+                 ;; Git uses: "diff ..." & "index ..."
+                 ;; Subversion uses: "Index ..." & "===...".
+                 ;;
+                 ;; So use any non-blank line start except for '-' & '+'.
+                 ;;
+                 ;; NOTE: this could be part of the REGEXP but in practice it's quite slow!
+                 ;; so search backwards instead.
+                 (let ((pos (match-beginning 0)))
+                   (goto-char pos)
+                   (forward-line -1)
+                   ;; Typically this only runs 1..2 times.
+                   (while (and (looking-at "[^\\-\\+[:blank:]]" t)
+                               (progn
+                                 (setq pos (point))
+                                 ;; Prevent a (highly unlikely) eternal loop.
+                                 (zerop (forward-line -1)))))
+                   pos))
                 (t
                  (point-max))))))
 
